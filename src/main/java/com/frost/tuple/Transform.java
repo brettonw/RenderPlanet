@@ -86,6 +86,10 @@ public class Transform {
         return tuple;
     }
 
+    public static double radians(double degrees) {
+        return (degrees / 180.0) * Math.PI;
+    }
+
     private static int verifySize(double[]... tuples) throws TupleSizeException {
         int size = tuples[0].length;
         for (int i = 1, end = tuples.length; i < end; ++i) {

@@ -32,10 +32,6 @@ public class Transform2D extends Transform {
         return scale(tuple[Tuple.X], tuple[Tuple.Y]);
     }
 
-    public static double radians (double degrees) {
-        return (degrees / 180.0) * Math.PI;
-    }
-
     public static Transform rotate(double angle) {
         double cosa = Math.cos(angle);
         double sina = Math.sin(angle);
