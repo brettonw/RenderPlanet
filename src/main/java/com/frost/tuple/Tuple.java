@@ -1,5 +1,7 @@
 package com.frost.tuple;
 
+import java.util.Arrays;
+
 public class Tuple {
     public static final int X = 0;
     public static final int Y = 1;
@@ -12,19 +14,17 @@ public class Tuple {
         return new double[size];
     }
 
-    public static double[] make(int size, double value) {
-        double tuple[] = new double[size];
-        for (int i = 0; i < size; ++i) {
-            tuple[i] = value;
-        }
-        return tuple;
-    }
-
     // shorthand for new double[] {value, value, value};
     public static double[] make(double... values) {
         // be aware that passing a double[] into this will compile, but it will
         // simply pass through, and not be a copy...
         return values;
+    }
+
+    public static double[] fill(int size, double value) {
+        double tuple[] = new double[size];
+        Arrays.fill(tuple, value);
+        return tuple;
     }
 
     public static double[] copy(double[] tuple) {
@@ -178,6 +178,14 @@ public class Tuple {
         throw new TupleSizeException("crossProduct2 is only defined for 2 dimensional vectors");
     }
     //endregion
+
+    public static double lengthSq(double[] tuple) throws TupleSizeException {
+        return dot(tuple, tuple);
+    }
+
+    public static double length(double[] tuple) throws TupleSizeException {
+        return Math.sqrt (lengthSq(tuple));
+    }
 
     private static int verifySize(double[]... tuples) throws TupleSizeException {
         int size = tuples[0].length;
