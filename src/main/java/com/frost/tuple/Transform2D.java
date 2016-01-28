@@ -39,9 +39,8 @@ public class Transform2D extends Transform {
     public static Transform rotate(double angle) {
         double cosa = Math.cos(angle);
         double sina = Math.sin(angle);
-        Transform transform = identity()
+        return identity()
                 .set(0, 0,  cosa).set(0, 1,  sina)
                 .set(1, 0, -sina).set(1, 1,  cosa);
-        return transform;
     }
 }
