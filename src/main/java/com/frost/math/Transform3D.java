@@ -1,4 +1,4 @@
-package com.frost.tuple;
+package com.frost.math;
 
 public class Transform3D extends Transform {
     protected static final int SIZE_DIMENSION_3D = 4;

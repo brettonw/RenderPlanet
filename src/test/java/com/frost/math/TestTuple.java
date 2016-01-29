@@ -1,4 +1,4 @@
-package com.frost.tuple;
+package com.frost.math;
 
 import org.junit.Test;
 

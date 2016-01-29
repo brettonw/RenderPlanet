@@ -1,4 +1,4 @@
-package com.frost.tuple;
+package com.frost.math;
 
 public class MatrixSizeException extends Exception {
     public MatrixSizeException(String description) {

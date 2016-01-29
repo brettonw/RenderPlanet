@@ -1,4 +1,4 @@
-package com.frost.tuple;
+package com.frost.math;
 
 // Transforms are generally presumed to be square, homogenous coordinate system
 // transformation matrices
@@ -84,10 +84,6 @@ public class Transform {
     public static double[] multiply(Transform left, double[] right) throws MatrixSizeException {
         double[] tuple = null;
         return tuple;
-    }
-
-    public static double radians(double degrees) {
-        return (degrees / 180.0) * Math.PI;
     }
 
     private static int verifySize(double[]... tuples) throws TupleSizeException {
