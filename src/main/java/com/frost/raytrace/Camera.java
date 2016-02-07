@@ -9,3 +9,4 @@ public class Camera {
     // exposure duration
     // spectral response
 }
+;
