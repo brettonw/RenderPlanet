@@ -72,7 +72,7 @@ public class BagParser {
         if ((key.length () > 0) && Expect(':'))
         {
             BagParserObject value = ReadValue();
-            if (value != null)
+            if (value.getObject () != null)
             {
                 bagObject.put(key, value);
                 return true;
