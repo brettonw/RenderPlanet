@@ -4,9 +4,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class TestTuple {
+public class TupleTest {
     @Test
-    public void testTuple() {
+    public void test() {
         assertArrayEquals("Check Tuple 'make' - A", new double[]{0, 0, 0}, Tuple.make(3), 0);
         assertArrayEquals("Check Tuple 'make' - B", new double[]{1, 2, 3}, Tuple.make(1, 2, 3), 0);
 
