@@ -34,19 +34,18 @@ public class BagObject {
             // if the array is smaller than the cap then double its size, otherwise just add the block
             int newSize = (count > DOUBLING_CAP) ? (count + DOUBLING_CAP) : (count * 2);
             container = new Pair[newSize];
-            System.arraycopy(src, 0, container, 0, gapIndex);
+            System.arraycopy (src, 0, container, 0, gapIndex);
         }
-        System.arraycopy(src, gapIndex, container, gapIndex + 1, count - gapIndex);
+        System.arraycopy (src, gapIndex, container, gapIndex + 1, count - gapIndex);
         ++count;
     }
 
     private int binarySearch (String key) {
         Pair term = new Pair (key);
-        int index = Arrays.binarySearch (container, 0, count, term);
-        return index;
+        return Arrays.binarySearch (container, 0, count, term);
     }
 
-    protected Object getObject (String key) {
+    public Object getObject (String key) {
         int index = binarySearch (key);
         if (index >= 0) {
             Pair pair = container[index];
@@ -55,53 +54,92 @@ public class BagObject {
         return null;
     }
 
-    protected BagObject putObject(String key, Object object) {
-        int index = binarySearch (key);
-        if (index >= 0) {
-            Pair pair = container[index];
-            pair.setValue (object);
-            log.info ("Replace - Key (" + key + "), Count (" + count + "), Index (" + index + ")");
-        } else {
-            // the binary search returns a funky encoding of the index where the new value should go
-            // but it's not there, so we have to decode that number (-(index) - 1);
-            index = -(index + 1);
-            grow (index);
-            container[index] = new Pair (key, object);
-            log.info ("Add - Key (" + key + "), Count (" + count + "), Index (" + index + ")");
+    public BagObject putObject (String key, Object object) {
+        // convert the incoming object to the internal store format, we don't store null values, as
+        // that is indistinguishable on the get from fetching a non-existent key
+        object = BagHelper.objectify (object);
+        if (object != null) {
+            int index = binarySearch (key);
+            if (index >= 0) {
+                Pair pair = container[index];
+                pair.setValue (object);
+                //log.debug ("Replace - Key (" + key + "), Count (" + count + "), Index (" + index + ")");
+            } else {
+                // the binary search returns a funky encoding of the index where the new value
+                // should go when it's not there, so we have to decode that number (-index - 1)
+                index = -(index + 1);
+                grow (index);
+                container[index] = new Pair (key, object);
+                //log.debug ("Add - Key (" + key + "), Count (" + count + "), Index (" + index + ")");
+            }
         }
         return this;
     }
 
-    public Boolean getBoolean (String key) {
-        return (Boolean) getObject (key);
-    }
-
-    public BagObject put (String key, Boolean value) {
-        return putObject (key, value);
-    }
-
-    public Integer getInteger (String key) {
-        return (Integer) getObject (key);
-    }
-
-    public BagObject put (String key, Integer value) {
-        return putObject (key, value);
-    }
-
-    public Double getDouble (String key) {
-        return (Double) getObject (key);
-    }
-
-    public BagObject put (String key, Double value) {
-        return putObject (key, value);
-    }
-
+    // all of these are helpers
     public String getString (String key) {
         return (String) getObject (key);
     }
 
     public BagObject put (String key, String value) {
         return putObject (key, value);
+    }
+
+    public Boolean getBoolean (String key) {
+        try {
+            return Boolean.parseBoolean (getString (key));
+        } catch (ClassCastException exc) {
+            log.debug ("intentional catch to return null");
+        }
+        return null;
+    }
+
+    public BagObject put (String key, Boolean value) {
+        return putObject (key, value);
+    }
+
+    public Long getLong (String key) {
+        try {
+            return Long.parseLong (getString (key));
+        } catch (ClassCastException exc) {
+            log.debug ("intentional catch to return null");
+        }
+        return null;
+    }
+
+    public BagObject put (String key, Long value) {
+        return putObject (key, value);
+    }
+
+    public Integer getInteger (String key) {
+        Long value = getLong (key);
+        return (value != null) ? value.intValue () : null;
+    }
+
+    public BagObject put (String key, Integer value) {
+        return put (key, (long) value);
+    }
+
+    public Double getDouble (String key) {
+        try {
+            return Double.parseDouble (getString (key));
+        } catch (ClassCastException exc) {
+            log.debug ("intentional catch to return null");
+        }
+        return null;
+    }
+
+    public BagObject put (String key, Double value) {
+        return putObject (key, value);
+    }
+
+    public Float getFloat (String key) {
+        Double value = getDouble (key);
+        return (value != null) ? value.floatValue () : null;
+    }
+
+    public BagObject put (String key, Float value) {
+        return put (key, (double) value);
     }
 
     public BagObject getBagObject (String key) {
@@ -120,12 +158,7 @@ public class BagObject {
         return putObject (key, value);
     }
 
-    public BagObject put (String key, BagParser.BagParserObject object) {
-        return putObject (key, object.getObject ());
-    }
-
     public String[] keys () {
-        int length = container.length;
         String keys[] = new String[count];
         for (int i = 0; i < count; ++i) {
             keys[i] = container[i].getKey ();
@@ -135,25 +168,25 @@ public class BagObject {
 
     @Override
     public String toString () {
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder ();
         boolean isFirst = true;
         for (int i = 0; i < count; ++i) {
-            result.append(isFirst ? "" : ",");
+            result.append (isFirst ? "" : ",");
             isFirst = false;
 
             Pair pair = container[i];
             result
-                .append(BagHelper.escape(pair.getKey ()))
-                .append(":")
-                .append(BagHelper.stringify(pair.getValue ()));
+                    .append (BagHelper.quote (pair.getKey ()))
+                    .append (":")
+                    .append (BagHelper.stringify (pair.getValue ()));
         }
-        return BagHelper.enclose(result.toString(), "{}");
+        return BagHelper.enclose (result.toString (), "{}");
     }
 
     public static BagObject fromString (String input) {
         // parse the string out... it is assumed to be a well formed BagObject serialization
-        BagParser parser = new BagParser(input);
-        return (BagObject) parser.ReadObject ().getObject ();
+        BagParser parser = new BagParser (input);
+        return parser.ReadBagObject ();
     }
 
 }

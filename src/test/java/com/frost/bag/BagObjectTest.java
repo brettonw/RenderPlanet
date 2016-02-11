@@ -1,5 +1,6 @@
 package com.frost.bag;
 
+import com.frost.AppTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
@@ -9,10 +10,6 @@ import static org.junit.Assert.*;
 public class BagObjectTest {
     private static final Logger log = LogManager.getLogger (BagObject.class);
 
-    public static void report (Boolean result, String message) {
-        log.info (message + " (" + (result ? "PASS" : "FAIL") + ")");
-        assertTrue (message, result);
-    }
     @Test
     public void test() {
         BagObject bagObject = new BagObject ();
@@ -29,45 +26,61 @@ public class BagObjectTest {
         String state = bagObject.getString ("state");
         assertEquals ("Check state", "md", state);
 
+        // first round, a simple example
         BagObject testObject = new BagObject();
         testObject.put("First Name", "Bretton");
+
+        AppTest.report (testObject.getString ("First Name"), "Bretton", "BagObject simple string extraction");
+
+        String testString = testObject.toString ();
+        AppTest.report (testString, testString, "BagObject simple ToString exercise (" + testString + ")");
+
+        BagObject recon = BagObject.fromString (testString);
+        assertNotNull (recon);
+        String reconString = recon.toString ();
+        AppTest.report (reconString, testString, "BagObject simple reconstitution");
+
+        // second round, a bit more sophisticated
         testObject.put("Last Name", "Wade");
         testObject.put("Weight", 220.5);
         testObject.put("Married", true);
         testObject.put("Children", "");
 
-        report (testObject.getString ("First Name") == "Bretton", "BagObject simple string extraction");
-        report (testObject.getBoolean ("Married") == true, "BagObject simple bool extraction");
-        report (testObject.getDouble ("Weight") == 220.5, "BagObject simple double extraction");
-        report (testObject.getString ("Children") == "", "BagObject simple empty extraction");
+        AppTest.report (testObject.getString ("First Name"), "Bretton", "BagObject simple string extraction");
+        AppTest.report (testObject.getString ("Last Name"), "Wade", "BagObject simple string extraction");
+        AppTest.report (testObject.getBoolean ("Married"), true, "BagObject simple bool extraction");
+        AppTest.report (testObject.getDouble ("Weight"), 220.5, "BagObject simple double extraction");
+        AppTest.report (testObject.getString ("Children"), "", "BagObject simple empty extraction");
 
-        String testString = testObject.toString ();
-        report (true, "BagObject simple ToString exercise" + testString);
+        testString = testObject.toString ();
+        AppTest.report (testString, testString, "BagObject simple ToString exercise (" + testString + ")");
 
-        BagObject recon = BagObject.fromString (testString);
-        String reconString = recon.toString ();
-        report (reconString == testString, "BagObject simple reconstitution");
+        recon = BagObject.fromString (testString);
+        assertNotNull (recon);
+        reconString = recon.toString ();
+        AppTest.report (reconString, testString, "BagObject simple reconstitution");
 
+        // on with the show
         BagObject dateObject = new BagObject ();
         dateObject.put ("Year", 2015);
         dateObject.put ("Month", 11);
         dateObject.put ("Day", 18);
 
-        report (dateObject.getInteger ("Month") == 11, "BagObject simple int extraction");
+        AppTest.report (dateObject.getInteger ("Month"), 11, "BagObject simple int extraction");
 
         testObject.put ("DOB", dateObject);
         testString = testObject.toString ();
-        report (true, "BagObject complex ToString exercise" + testString);
+        AppTest.report (testString, testString, "BagObject complex ToString exercise (" + testString + ")");
 
         recon = BagObject.fromString (testString);
         reconString = recon.toString ();
-        report (reconString == testString, "BagObject complex reconsititution");
+        AppTest.report (reconString, testString, "BagObject complex reconsititution");
 
-        report (recon.getBoolean ("Married") == true, "BagObject complex bag/bool extraction");
-        report (recon.getDouble ("Weight") == 220.5, "BagObject complex bag/double extraction");
-        report (recon.getBagObject ("DOB").getInteger ("Year") == 2015, "BagObject complex bag/int extraction");
+        AppTest.report (recon.getBoolean ("Married"), true, "BagObject complex bag/bool extraction");
+        AppTest.report (recon.getDouble ("Weight"), 220.5, "BagObject complex bag/double extraction");
+        AppTest.report (recon.getBagObject ("DOB").getInteger ("Year"), 2015, "BagObject complex bag/int extraction");
 
-        report (recon.getBoolean ("DOB") == null, "BagObject simple bad type request (should be null)");
-        report (recon.getString ("Joseph") == null, "BagObject simple bad key request (should be null)");
+        AppTest.report (recon.getBoolean ("DOB"), null, "BagObject simple bad type request (should be null)");
+        AppTest.report (recon.getString ("Joseph"), null, "BagObject simple bad key request (should be null)");
     }
 }

@@ -10,36 +10,24 @@ public class BagParser {
     private int index;
     private String input;
 
-    public class BagParserObject {
-        private Object object;
-        private BagParserObject (Object object) {
-            this.object = object;
-        }
-        public Object getObject () {
-            return object;
-        }
-    }
-
     public BagParser(String input)
     {
         this.input = input;
         index = 0;
     }
 
-    public BagParserObject ReadArray()
+    public BagArray ReadBagArray()
     {
         // <Array> :: [ ] | [ <Elements> ]
         BagArray bagArray = new BagArray();
-        Object object = (Expect('[') && ReadElements(bagArray) && Expect(']')) ? bagArray : null;
-        return new BagParserObject (object);
+        return (Expect('[') && ReadElements(bagArray) && Expect(']')) ? bagArray : null;
     }
 
-    public BagParserObject ReadObject()
+    public BagObject ReadBagObject()
     {
         // <Object> ::= { } | { <Members> }
         BagObject bagObject = new BagObject();
-        Object object = (Expect('{') && ReadMembers(bagObject) && Expect('}')) ? bagObject : null;
-        return new BagParserObject (object);
+        return (Expect('{') && ReadMembers(bagObject) && Expect('}')) ? bagObject : null;
     }
 
     private boolean Expect(char c)
@@ -55,33 +43,33 @@ public class BagParser {
     private boolean ReadElements(BagArray bagArray)
     {
         // <Elements> ::= <Value> | <Value> , <Elements>
-        bagArray.add (ReadValue());
-        return Expect(',') || ReadElements(bagArray);
+        bagArray.addObject (ReadValue());
+        return (Expect(',') && ReadElements(bagArray)) || true;
     }
 
     private boolean ReadMembers(BagObject bagObject)
     {
         // <Members> ::= <Pair> | <Pair> , <Members>
-        return ReadPair(bagObject) && (Expect(',') || ReadMembers(bagObject));
+        return ReadPair(bagObject) && ((Expect(',') && ReadMembers(bagObject)) || true);
     }
 
     private boolean ReadPair(BagObject bagObject)
     {
         // <Pair> ::= <String> : <Value>
-        String key = (String) ReadString().getObject ();
+        String key = ReadString();
         if ((key.length () > 0) && Expect(':'))
         {
-            BagParserObject value = ReadValue();
-            if (value.getObject () != null)
+            Object value = ReadValue();
+            if (value != null)
             {
-                bagObject.put(key, value);
+                bagObject.putObject (key, value);
                 return true;
             }
         }
         return false;
     }
 
-    private BagParserObject ReadString()
+    private String ReadString()
     {
         // read a string that allows quoted strings internally
         String result = null;
@@ -110,13 +98,13 @@ public class BagParser {
             }
             result = stringBuilder.toString ();
         }
-        return new BagParserObject (result);
+        return result;
     }
 
-    private BagParserObject ReadValue()
+    private Object ReadValue()
     {
         // <Value> ::= <String> | <Object> | <Array>
-        BagParserObject value = null;
+        Object value = null;
         switch (input.charAt (index))
         {
             case '"':
@@ -124,11 +112,11 @@ public class BagParser {
                 break;
 
             case '{':
-                value = ReadObject();
+                value = ReadBagObject();
                 break;
 
             case '[':
-                value = ReadArray();
+                value = ReadBagArray();
                 break;
         }
         return value;

@@ -3,13 +3,18 @@ package com.frost;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
+public class AppTest extends TestCase
+{    private static final Logger log = LogManager.getLogger (TestCase.class);
+
+    public static void report (Object actual, Object expect, String message) {
+        boolean result = (actual != null) ? actual.equals (expect) : (actual == expect);
+        log.info (message + " (" + (result ? "PASS" : "FAIL") + ")");
+        assertEquals (message, expect, actual);
+    }
+
     /**
      * Create the test case
      *

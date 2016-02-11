@@ -1,18 +1,27 @@
-2016-02-09 16:45:31.311 [main] INFO  com.frost.bag.BagObject - Add - Key (name), Count (1), Index (0)
-2016-02-09 16:45:31.312 [main] INFO  com.frost.bag.BagObject - Add - Key (phone), Count (2), Index (1)
-2016-02-09 16:45:31.313 [main] INFO  com.frost.bag.BagObject - Add - Key (address), Count (3), Index (0)
-2016-02-09 16:45:31.313 [main] INFO  com.frost.bag.BagObject - Add - Key (city), Count (4), Index (1)
-2016-02-09 16:45:31.313 [main] INFO  com.frost.bag.BagObject - Add - Key (state), Count (5), Index (4)
-2016-02-09 16:45:31.313 [main] INFO  com.frost.bag.BagObject - Add - Key (zip), Count (6), Index (5)
-2016-02-09 16:45:31.316 [main] INFO  com.frost.bag.BagObject - Replace - Key (state), Count (6), Index (4)
-2016-02-09 16:45:31.320 [main] INFO  com.frost.bag.BagObject - Add - Key (First Name), Count (1), Index (0)
-2016-02-09 16:45:31.321 [main] INFO  com.frost.bag.BagObject - Add - Key (Last Name), Count (2), Index (1)
-2016-02-09 16:45:31.321 [main] INFO  com.frost.bag.BagObject - Add - Key (Weight), Count (3), Index (2)
-2016-02-09 16:45:31.322 [main] INFO  com.frost.bag.BagObject - Add - Key (Married), Count (4), Index (2)
-2016-02-09 16:45:31.322 [main] INFO  com.frost.bag.BagObject - Add - Key (Children), Count (5), Index (0)
-2016-02-09 16:45:31.322 [main] INFO  com.frost.bag.BagObject - BagObject simple string extraction (PASS)
-2016-02-09 16:45:31.325 [main] INFO  com.frost.bag.BagObject - BagObject simple bool extraction (PASS)
-2016-02-09 16:45:31.325 [main] INFO  com.frost.bag.BagObject - BagObject simple double extraction (PASS)
-2016-02-09 16:45:31.326 [main] INFO  com.frost.bag.BagObject - BagObject simple empty extraction (PASS)
-2016-02-09 16:45:31.328 [main] INFO  com.frost.bag.BagObject - BagObject simple ToString exercise{"Children":"","First Name":"Bretton","Last Name":"Wade","Married":null,"Weight":null} (PASS)
-2016-02-09 16:45:31.330 [main] INFO  com.frost.bag.BagObject - Add - Key (Children), Count (1), Index (0)
+2016-02-10 21:11:28.996 [main] INFO  com.frost.bag.Serializer - Add x as java.lang.Integer
+2016-02-10 21:11:28.997 [main] INFO  com.frost.bag.Serializer - Add y as boolean
+2016-02-10 21:11:28.998 [main] INFO  com.frost.bag.Serializer - Add z as double
+2016-02-10 21:11:28.998 [main] INFO  com.frost.bag.Serializer - Add abc as java.lang.String
+2016-02-10 21:11:28.998 [main] INFO  com.frost.bag.Serializer - Add sub as com.frost.bag.test.TestClassB
+2016-02-10 21:11:28.998 [main] INFO  com.frost.bag.Serializer - Add a as int
+2016-02-10 21:11:28.998 [main] INFO  com.frost.bag.Serializer - Add b as long
+2016-02-10 21:11:29.001 [main] INFO  com.frost.bag.Serializer - Add c as float
+2016-02-10 21:11:29.001 [main] INFO  com.frost.bag.SerializerTest - {"class":"com.frost.bag.test.TestClassA","values":{"abc":"pdq","sub":{"class":"com.frost.bag.test.TestClassB","values":{"a":"7","b":"1005","c":"61.5"}},"x":"5","y":"true","z":"123.0"}}
+2016-02-10 21:11:29.001 [main] INFO  com.frost.bag.Serializer - Add x as java.lang.Integer
+2016-02-10 21:11:29.001 [main] INFO  com.frost.bag.Serializer - Add y as boolean
+2016-02-10 21:11:29.001 [main] INFO  com.frost.bag.Serializer - Add z as double
+2016-02-10 21:11:29.002 [main] INFO  com.frost.bag.Serializer - Add abc as java.lang.String
+2016-02-10 21:11:29.002 [main] INFO  com.frost.bag.Serializer - Add sub as com.frost.bag.test.TestClassB
+2016-02-10 21:11:29.002 [main] INFO  com.frost.bag.Serializer - Add a as int
+2016-02-10 21:11:29.002 [main] INFO  com.frost.bag.Serializer - Add b as long
+2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add c as float
+2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add x as java.lang.Integer
+2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add y as boolean
+2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add z as double
+2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add abc as java.lang.String
+2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add sub as com.frost.bag.test.TestClassB
+2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add a as int
+2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add b as long
+2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add c as float
+2016-02-10 21:11:29.005 [main] INFO  junit.framework.TestCase - Serializer test round trip (PASS)
+2016-02-10 21:11:29.005 [main] INFO  com.frost.bag.SerializerTest - got here
