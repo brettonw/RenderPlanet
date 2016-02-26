@@ -12,6 +12,45 @@ public class Serializer {
     private static final String CLASS_KEY = "class";
     private static final String VALUES_KEY = "values";
 
+    // XXX want to make this work with arrays...
+
+    private static Object objectify (Object value, String typeName) {
+        if (value != null) {
+            if (value instanceof String) {
+                String valueString = (String) value;
+                switch (typeName) {
+                    case "java.lang.String":
+                        return value;
+                    case "java.lang.Character":
+                    case "char":
+                        return new Character (valueString.charAt (0));
+                    case "java.lang.Byte":
+                    case "byte":
+                        return new Byte (valueString);
+                    case "java.lang.Short":
+                    case "short":
+                        return new Short (valueString);
+                    case "java.lang.Integer":
+                    case "int":
+                        return new Integer (valueString);
+                    case "java.lang.Long":
+                    case "long":
+                        return new Long (valueString);
+                    case "java.lang.Boolean":
+                    case "boolean":
+                        return new Boolean (valueString);
+                    case "java.lang.Double":
+                    case "double":
+                        return new Double (valueString);
+                    case "java.lang.Float":
+                    case "float":
+                        return new Float (valueString);
+                }
+            }
+        }
+        return null;
+    }
+
     public static BagObject toBagObject (Object target) {
         BagObject serializedBagObject = new BagObject (2);
         Class targetClass = target.getClass ();
@@ -57,7 +96,7 @@ public class Serializer {
                     String typeName = fieldType.getName ();
                     log.info ("Add " + name + " as " + typeName);
                     if (BagHelper.isPrimitive (fieldType) || typeName.equals ("java.lang.String")) {
-                        field.set (target, BagHelper.objectify (values.getObject (name), typeName));
+                        field.set (target, objectify (values.getObject (name), typeName));
                     } else {
                         field.set (target, fromBagObject (values.getBagObject (name)));
                     }

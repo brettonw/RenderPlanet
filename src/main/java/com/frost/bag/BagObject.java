@@ -76,6 +76,18 @@ public class BagObject {
         return this;
     }
 
+    public BagObject remove (String key) {
+        int index = binarySearch (key);
+        if (index >= 0) {
+            int gapIndex = index + 1;
+            System.arraycopy (container, gapIndex, container, index, count - gapIndex);
+            --count;
+        } else {
+            // XXX what would we like to have happen here? do we care?
+        }
+        return this;
+    }
+
     // all of these are helpers
     public String getString (String key) {
         return (String) getObject (key);

@@ -59,6 +59,17 @@ public class BagArray {
         return this;
     }
 
+    public BagArray remove (int index) {
+        if ((index >= 0) && (index < count)) {
+            int gapIndex = index + 1;
+            System.arraycopy (container, gapIndex, container, index, count - gapIndex);
+            --count;
+        } else {
+            // XXX what would we like to have happen here? do we care?
+        }
+        return this;
+    }
+
     // all of these are helpers
     public String getString (int index) {
         return (String) container[index];
@@ -76,7 +87,7 @@ public class BagArray {
         return replaceObject (index, value);
     }
 
-    public boolean getBoolean (int index) {
+    public Boolean getBoolean (int index) {
         return Boolean.parseBoolean (getString (index));
     }
 
@@ -92,7 +103,23 @@ public class BagArray {
         return replaceObject (index, value);
     }
 
-    public long getInteger (int index) {
+    public Long getLong (int index) {
+        return Long.parseLong (getString (index));
+    }
+
+    public BagArray insert (int index, Long value) {
+        return insertObject (index, value);
+    }
+
+    public BagArray add (Long value) {
+        return addObject (value);
+    }
+
+    public BagArray replace (int index, Long value) {
+        return replaceObject (index, value);
+    }
+
+    public Integer getInteger (int index) {
         return Integer.parseInt (getString (index));
     }
 
@@ -108,7 +135,7 @@ public class BagArray {
         return replaceObject (index, value);
     }
 
-    public double getDouble (int index) {
+    public Double getDouble (int index) {
         return Double.parseDouble (getString (index));
     }
 

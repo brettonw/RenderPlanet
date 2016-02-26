@@ -1,27 +1,10 @@
-2016-02-10 21:11:28.996 [main] INFO  com.frost.bag.Serializer - Add x as java.lang.Integer
-2016-02-10 21:11:28.997 [main] INFO  com.frost.bag.Serializer - Add y as boolean
-2016-02-10 21:11:28.998 [main] INFO  com.frost.bag.Serializer - Add z as double
-2016-02-10 21:11:28.998 [main] INFO  com.frost.bag.Serializer - Add abc as java.lang.String
-2016-02-10 21:11:28.998 [main] INFO  com.frost.bag.Serializer - Add sub as com.frost.bag.test.TestClassB
-2016-02-10 21:11:28.998 [main] INFO  com.frost.bag.Serializer - Add a as int
-2016-02-10 21:11:28.998 [main] INFO  com.frost.bag.Serializer - Add b as long
-2016-02-10 21:11:29.001 [main] INFO  com.frost.bag.Serializer - Add c as float
-2016-02-10 21:11:29.001 [main] INFO  com.frost.bag.SerializerTest - {"class":"com.frost.bag.test.TestClassA","values":{"abc":"pdq","sub":{"class":"com.frost.bag.test.TestClassB","values":{"a":"7","b":"1005","c":"61.5"}},"x":"5","y":"true","z":"123.0"}}
-2016-02-10 21:11:29.001 [main] INFO  com.frost.bag.Serializer - Add x as java.lang.Integer
-2016-02-10 21:11:29.001 [main] INFO  com.frost.bag.Serializer - Add y as boolean
-2016-02-10 21:11:29.001 [main] INFO  com.frost.bag.Serializer - Add z as double
-2016-02-10 21:11:29.002 [main] INFO  com.frost.bag.Serializer - Add abc as java.lang.String
-2016-02-10 21:11:29.002 [main] INFO  com.frost.bag.Serializer - Add sub as com.frost.bag.test.TestClassB
-2016-02-10 21:11:29.002 [main] INFO  com.frost.bag.Serializer - Add a as int
-2016-02-10 21:11:29.002 [main] INFO  com.frost.bag.Serializer - Add b as long
-2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add c as float
-2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add x as java.lang.Integer
-2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add y as boolean
-2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add z as double
-2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add abc as java.lang.String
-2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add sub as com.frost.bag.test.TestClassB
-2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add a as int
-2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add b as long
-2016-02-10 21:11:29.003 [main] INFO  com.frost.bag.Serializer - Add c as float
-2016-02-10 21:11:29.005 [main] INFO  junit.framework.TestCase - Serializer test round trip (PASS)
-2016-02-10 21:11:29.005 [main] INFO  com.frost.bag.SerializerTest - got here
+2016-02-26 04:59:46.834 [main] INFO  junit.framework.TestCase - BagArray simple string extraction (PASS)
+2016-02-26 04:59:46.835 [main] INFO  junit.framework.TestCase - BagArray simple double extraction (PASS)
+2016-02-26 04:59:46.835 [main] INFO  junit.framework.TestCase - BagArray simple bool extraction (PASS)
+2016-02-26 04:59:46.835 [main] INFO  junit.framework.TestCase - BagArray simple int extraction (PASS)
+2016-02-26 04:59:46.835 [main] INFO  junit.framework.TestCase - BagArray simple toString exercise (["Bretton","Wade","220.5","true","42"]) (PASS)
+2016-02-26 04:59:46.836 [main] INFO  junit.framework.TestCase - BagArray simple reconstitution (PASS)
+2016-02-26 04:59:46.841 [main] INFO  junit.framework.TestCase - BagArray complex toString exercise (["Bretton",{"Day":"18","Month":"11","Year":"2015"},"Wade","220.5","true","42"]) (PASS)
+2016-02-26 04:59:46.842 [main] INFO  junit.framework.TestCase - BagArray complex reconstitution (PASS)
+2016-02-26 04:59:46.842 [main] INFO  junit.framework.TestCase - BagArray simple string extraction after insert (PASS)
+2016-02-26 04:59:46.842 [main] INFO  junit.framework.TestCase - BagArray complex bag/int extraction (PASS)

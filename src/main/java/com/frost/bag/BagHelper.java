@@ -62,43 +62,6 @@ public class BagHelper {
         return null;
     }
 
-    public static Object objectify (Object value, String typeName) {
-        if (value != null) {
-            if (value instanceof String) {
-                String valueString = (String) value;
-                switch (typeName) {
-                    case "java.lang.String":
-                        return value;
-                    case "java.lang.Character":
-                    case "char":
-                        return new Character (valueString.charAt (0));
-                    case "java.lang.Byte":
-                    case "byte":
-                        return new Byte (valueString);
-                    case "java.lang.Short":
-                    case "short":
-                        return new Short (valueString);
-                    case "java.lang.Integer":
-                    case "int":
-                        return new Integer (valueString);
-                    case "java.lang.Long":
-                    case "long":
-                        return new Long (valueString);
-                    case "java.lang.Boolean":
-                    case "boolean":
-                        return new Boolean (valueString);
-                    case "java.lang.Double":
-                    case "double":
-                        return new Double (valueString);
-                    case "java.lang.Float":
-                    case "float":
-                        return new Float (valueString);
-                }
-            }
-        }
-        return null;
-    }
-
     public static boolean isPrimitive (Class cls) {
         // obviously, if Java thinks it's a primitive, it is
         if (cls.isPrimitive ()) {
