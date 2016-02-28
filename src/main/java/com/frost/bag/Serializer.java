@@ -125,12 +125,11 @@ public class Serializer {
             case "Ljava.lang.Boolean;": return Boolean.class;
         }
 
-        // if we get here, the type is either a class name, or an array subtype
+        // if we get here, the type is either a class name, or ???
         if (typeName.charAt (arrayDepth) == 'L') {
             ClassLoader classLoader = ClassLoader.getSystemClassLoader ();
             return classLoader.loadClass (typeName.substring (arrayDepth + 1));
         } else {
-            // multi-dimensional arrays don't reconstruct correctly at the moment
             throw new ClassNotFoundException(typeName);
         }
     }
