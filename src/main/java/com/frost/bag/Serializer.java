@@ -6,76 +6,13 @@ import org.apache.logging.log4j.Logger;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 public class Serializer {
     private static final Logger log = LogManager.getLogger (Serializer.class);
 
     private static final String CLASS_KEY = "class";
     private static final String VALUES_KEY = "values";
-
-    private static Class arrayType (Class type) throws ClassNotFoundException {
-        String typeName = type.getName ();
-        switch (typeName.substring (0, 1)) {
-            case "B":
-                return Byte.class;
-            case "C":
-                return Character.class;
-            case "D":
-                return Double.class;
-            case "F":
-                return Float.class;
-            case "I":
-                return Integer.class;
-            case "J":
-                return Long.class;
-            case "L": {
-                ClassLoader classLoader = ClassLoader.getSystemClassLoader ();
-                return classLoader.loadClass (typeName.substring (2));
-            }
-            case "S":
-                return Short.class;
-            case "Z":
-                return Boolean.class;
-        }
-        throw new ClassNotFoundException (typeName);
-    }
-
-    private static Object objectify (Object value, String typeName) {
-        if (value != null) {
-            if (value instanceof String) {
-                String valueString = (String) value;
-                switch (typeName) {
-                    case "java.lang.String":
-                        return value;
-                    case "java.lang.Character":
-                    case "char":
-                        return new Character (valueString.charAt (0));
-                    case "java.lang.Byte":
-                    case "byte":
-                        return new Byte (valueString);
-                    case "java.lang.Short":
-                    case "short":
-                        return new Short (valueString);
-                    case "java.lang.Integer":
-                    case "int":
-                        return new Integer (valueString);
-                    case "java.lang.Long":
-                    case "long":
-                        return new Long (valueString);
-                    case "java.lang.Boolean":
-                    case "boolean":
-                        return new Boolean (valueString);
-                    case "java.lang.Double":
-                    case "double":
-                        return new Double (valueString);
-                    case "java.lang.Float":
-                    case "float":
-                        return new Float (valueString);
-                }
-            }
-        }
-        return null;
-    }
 
     public static BagObject toBagObject (Object target) {
         BagObject serializedBagObject = new BagObject (2);
@@ -95,7 +32,7 @@ public class Serializer {
                 Class itemType = item.getClass ();
                 String typeName = itemType.getName ();
                 log.info ("Add item (" + i + ") as " + typeName);
-                if (BagHelper.isPrimitive (itemType) || typeName.equals ("java.lang.String")) {
+                if (BagHelper.isPrimitive (itemType)) {
                     values.addObject (item);
                 } else {
                     values.add (toBagObject (item));
@@ -114,7 +51,7 @@ public class Serializer {
                     Class fieldType = field.getType ();
                     String typeName = fieldType.getName ();
                     log.info ("Add " + name + " as " + typeName);
-                    if (BagHelper.isPrimitive (fieldType) || typeName.equals ("java.lang.String")) {
+                    if (BagHelper.isPrimitive (fieldType)) {
                         values.putObject (name, field.get (target));
                     } else {
                         values.put (name, toBagObject (field.get (target)));
@@ -129,56 +66,158 @@ public class Serializer {
         return serializedBagObject;
     }
 
-    public static Object fromBagObject (BagObject bagObject) {
-        Object result = null;
-        try {
-            String targetClassName = bagObject.getString (CLASS_KEY);
+    private static Object objectify (String value, Class type) {
+        if (value != null) {
+            if (value instanceof String) {
+                switch (type.getName ()) {
+                    case "java.lang.String":
+                        return value;
+                    case "java.lang.Character":
+                    case "char":
+                        return new Character (value.charAt (0));
+                    case "java.lang.Byte":
+                    case "byte":
+                        return new Byte (value);
+                    case "java.lang.Short":
+                    case "short":
+                        return new Short (value);
+                    case "java.lang.Integer":
+                    case "int":
+                        return new Integer (value);
+                    case "java.lang.Long":
+                    case "long":
+                        return new Long (value);
+                    case "java.lang.Boolean":
+                    case "boolean":
+                        return new Boolean (value);
+                    case "java.lang.Double":
+                    case "double":
+                        return new Double (value);
+                    case "java.lang.Float":
+                    case "float":
+                        return new Float (value);
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Class getArrayType (String typeName) throws ClassNotFoundException {
+        int arrayDepth = 0;
+        while (typeName.charAt (arrayDepth) == '[') { ++arrayDepth; }
+        switch (typeName.substring (arrayDepth)) {
+            case "B": return byte.class;
+            case "C": return char.class;
+            case "D": return double.class;
+            case "F": return float.class;
+            case "I": return int.class;
+            case "J": return long.class;
+            case "S": return short.class;
+            case "Z": return boolean.class;
+
+            case "Ljava.lang.Byte;": return Byte.class;
+            case "Ljava.lang.Character;": return Character.class;
+            case "Ljava.lang.Double;": return Double.class;
+            case "Ljava.lang.Float;": return Float.class;
+            case "Ljava.lang.Integer;": return Integer.class;
+            case "Ljava.lang.Long;": return Long.class;
+            case "Ljava.lang.Short;": return Short.class;
+            case "Ljava.lang.Boolean;": return Boolean.class;
+        }
+
+        // if we get here, the type is either a class name, or an array subtype
+        if (typeName.charAt (arrayDepth) == 'L') {
             ClassLoader classLoader = ClassLoader.getSystemClassLoader ();
-            Class targetClass = classLoader.loadClass (targetClassName);
+            return classLoader.loadClass (typeName.substring (arrayDepth + 1));
+        } else {
+            // multi-dimensional arrays don't reconstruct correctly at the moment
+            throw new ClassNotFoundException(typeName);
+        }
+    }
+
+    private static int[] getArraySizes (BagObject bagObject) {
+        ArrayList<Integer> sizeList = new ArrayList<> (1);
+        String classString = bagObject.getString (CLASS_KEY);
+        boolean finished = false;
+        while (! finished) {
+            BagArray values = bagObject.getBagArray (VALUES_KEY);
+            sizeList.add (values.getCount ());
+            if (classString.charAt (1) == '[') {
+                bagObject = values.getBagObject (0);
+                classString = bagObject.getString (CLASS_KEY);
+            } else {
+                finished = true;
+            }
+        }
+
+        // convert the sizeList to a return result - not using toArray because it requires boxed
+        // types, not all aspects of Java have been fully thought through
+        int count = sizeList.size ();
+        int[] result = new int[count];
+        for (int i = 0; i < count; ++i) {
+            result[i] = sizeList.get (i);
+        }
+        return result;
+    }
+
+    private static void populateArray(Object target, BagObject bagObject, Class type) {
+        String classString = bagObject.getString (CLASS_KEY);
+        BagArray values = bagObject.getBagArray (VALUES_KEY);
+        for (int i = 0, end = values.getCount (); i < end; ++i) {
+            if (classString.charAt (1) == '[') {
+                // we should recur for each value
+                Object newTarget = Array.get (target, i);
+                BagObject newBagObject = values.getBagObject (i);
+                populateArray (newTarget, newBagObject, type);
+            } else {
+                // we should set the value
+                if (BagHelper.isPrimitive (type)) {
+                    Array.set (target, i, objectify (values.getString (i), type));
+                } else {
+                    Array.set (target, i, fromBagObject (values.getBagObject (i)));
+                }
+            }
+        }
+    }
+
+    public static Object fromBagObject (BagObject bagObject) {
+        Object target = null;
+        try {
+            String classString = bagObject.getString (CLASS_KEY);
 
             // check to see if this is an array or an object
-            if (targetClass.isArray ()) {
-                Class arrayType = arrayType (targetClass);
-                String typeName = arrayType.getName ();
-                BagArray values = bagObject.getBagArray (VALUES_KEY);
-                int length = values.getCount ();
-                Object target = Array.newInstance (arrayType, length);
-                for (int i = 0; i < length; ++i) {
-                    log.info ("Add item (" + i + ") as " + typeName);
-                    if (BagHelper.isPrimitive (arrayType) || typeName.equals ("java.lang.String")) {
-                        Array.set (target, i, objectify (values.getString (i), typeName));
-                    } else {
-                        Array.set (target, i, fromBagObject (values.getBagObject (i)));
-                    }
-                }
-
-                // copy the created object if everything succeeded to here
-                result = target;
+            if (classString.charAt (0) == '[') {
+                // get the type of the array element to reconstruct
+                Class arrayType = getArrayType (classString);
+                int[] arraySizes = getArraySizes (bagObject);
+                target = Array.newInstance (arrayType, arraySizes);
+                populateArray (target, bagObject, arrayType);
             } else {
+                // get the class loader and fetch the class default constructor via reflection
+                ClassLoader classLoader = ClassLoader.getSystemClassLoader ();
+                Class targetClass = classLoader.loadClass (classString);
                 Constructor constructor = targetClass.getConstructor ();
-                Object target = constructor.newInstance ();
+                target = constructor.newInstance ();
 
-                // traverse the fields to set the values
+                // traverse the fields via reflection to set the values
                 Field fields[] = targetClass.getFields ();
                 BagObject values = bagObject.getBagObject (VALUES_KEY);
                 for (Field field : fields) {
                     String name = field.getName ();
                     Class fieldType = field.getType ();
-                    String typeName = fieldType.getName ();
-                    log.info ("Add " + name + " as " + typeName);
-                    if (BagHelper.isPrimitive (fieldType) || typeName.equals ("java.lang.String")) {
-                        field.set (target, objectify (values.getObject (name), typeName));
+                    log.info ("Add " + name + " as " + fieldType.getName ());
+                    if (BagHelper.isPrimitive (fieldType)) {
+                        field.set (target, objectify (values.getString (name), fieldType));
                     } else {
                         field.set (target, fromBagObject (values.getBagObject (name)));
                     }
                 }
-
-                // copy the created object if everything succeeded to here
-                result = target;
             }
-        }catch (Exception exception){
-            log.error (exception);
         }
-        return result;
+        catch (Exception exception){
+            log.error (exception);
+            target = null;
+        }
+        return target;
     }
 }

@@ -68,12 +68,13 @@ public class BagHelper {
             return true;
         }
 
-        // but we want this for boxed primitives as well
+        // but we want this for boxed primitives and strings as well
         switch (cls.getName ()) {
             case "java.lang.Long": case "java.lang.Integer": case "java.lang.Short": case "java.lang.Byte":
             case "java.lang.Char":
             case "java.lang.Boolean":
             case "java.lang.Double": case "java.lang.Float":
+            case "java.lang.String":
                 return true;
         }
 
