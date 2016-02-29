@@ -6,6 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.assertArrayEquals;
 
 
@@ -39,6 +41,13 @@ public class SerializerTest {
         log.info (bagObject.toString ());
         int reconArray3[][] = (int[][]) Serializer.fromBagObject (bagObject);
         assertArrayEquals("Check array reconstitution", testArray3, reconArray3);
+
+        ArrayList<Integer> arrayList = new ArrayList<> (3);
+        arrayList.add(1);
+        arrayList.add (3);
+        arrayList.add (5);
+        bagObject = Serializer.toBagObject (arrayList);
+        log.info (bagObject.toString ());
 
         log.info ("got here");
     }
