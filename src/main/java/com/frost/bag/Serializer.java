@@ -68,35 +68,33 @@ public class Serializer {
 
     private static Object objectify (String value, Class type) {
         if (value != null) {
-            if (value instanceof String) {
-                switch (type.getName ()) {
-                    case "java.lang.String":
-                        return value;
-                    case "java.lang.Character":
-                    case "char":
-                        return new Character (value.charAt (0));
-                    case "java.lang.Byte":
-                    case "byte":
-                        return new Byte (value);
-                    case "java.lang.Short":
-                    case "short":
-                        return new Short (value);
-                    case "java.lang.Integer":
-                    case "int":
-                        return new Integer (value);
-                    case "java.lang.Long":
-                    case "long":
-                        return new Long (value);
-                    case "java.lang.Boolean":
-                    case "boolean":
-                        return new Boolean (value);
-                    case "java.lang.Double":
-                    case "double":
-                        return new Double (value);
-                    case "java.lang.Float":
-                    case "float":
-                        return new Float (value);
-                }
+            switch (type.getName ()) {
+                case "java.lang.String":
+                    return value;
+                case "java.lang.Character":
+                case "char":
+                    return new Character (value.charAt (0));
+                case "java.lang.Byte":
+                case "byte":
+                    return new Byte (value);
+                case "java.lang.Short":
+                case "short":
+                    return new Short (value);
+                case "java.lang.Integer":
+                case "int":
+                    return new Integer (value);
+                case "java.lang.Long":
+                case "long":
+                    return new Long (value);
+                case "java.lang.Boolean":
+                case "boolean":
+                    return new Boolean (value);
+                case "java.lang.Double":
+                case "double":
+                    return new Double (value);
+                case "java.lang.Float":
+                case "float":
+                    return new Float (value);
             }
         }
         return null;
