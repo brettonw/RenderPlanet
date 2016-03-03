@@ -55,7 +55,8 @@ public class BagHelper {
 
                 default:
                     // no other type should be stored in the bag classes
-                    log.debug ("Unhandled type: " + className);
+                    // XXX throw an exception?
+                    log.error ("Unhandled type: " + className);
                     break;
             }
         }
