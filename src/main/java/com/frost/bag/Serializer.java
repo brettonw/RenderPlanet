@@ -42,27 +42,56 @@ public class Serializer {
 
     private static BagObject serializeArrayType (BagObject bagObject, Object object, Class type) {
         int length = Array.getLength (object);
-        BagArray values = new BagArray (length);
+        BagArray value = new BagArray (length);
         for (int i = 0; i < length; ++i) {
-            Object item = Array.get (object, i);
-            Class itemType = item.getClass ();
-            log.info ("Add item (" + i + ") as " + itemType.getName ());
-            if (BagHelper.isPrimitive (itemType)) {
-                values.addObject (item);
-            } else {
-                values.add (toBagObject (item));
-            }
+            // at runtime, we don't know what the array type is, and frankly we don't care
+            value.add (toBagObject (Array.get (object, i)));
         }
-        return bagObject.put (VALUE_KEY, values);
+        return bagObject.put (VALUE_KEY, value);
     }
 
-    private static BagObject serializeCollectionType (BagObject bagObject, Collection object, Class type) {
-        return null;
+    private static Class gatherType (Class was, Class is, String description) {
+        if ((was != null) && (! is.equals (was))) {
+            // check to see if "is" is a subclass of "was"
+            if (was.isAssignableFrom (is)) {
+                // it is, so the list is likely specified at the super class level
+                is = was;
+            } else {
+                log.warn ("multiple types encountered (" + was.getName () + ", " + is.getName () + ")");
+            }
+        }
+        return is;
     }
 
     private static BagObject serializeMapType (BagObject bagObject, Map object, Class type) {
-        return null;
+        Object[] keys = object.keySet ().toArray ();
+        int count = keys.length;
+        BagObject value = new BagObject (count);
+        /*
 
+        // XXX assume these types are homogenous
+        Class keyType = null;
+        Class itemType = null;
+        for (int i = 0; i < count; ++i) {
+            Object keyObject = keys[i];
+            keyType = gatherType (keyType, keyType.getClass (), "keyType");
+            if (BagHelper.isPrimitive (keyType)) {
+                String keyString = (keyObject instanceof String) ? (String) keyObject : keyObject.toString ();
+                Object item = object.get (keyObject);
+                itemType = gatherType (itemType, item.getClass (), "itemType");
+                log.info ("Add item (" + i + ") as " + itemType.getName ());
+                if (BagHelper.isPrimitive (itemType)) {
+                    value.put (keyString, item);
+                } else {
+                    value.put (keyString, toBagObject (item));
+                }
+            } else {
+                // XXX this is unlikely, IME
+                log.error ("A non-primitive type was used as the key in a map? This is not supported in the serializer.");
+            }
+        }
+        */
+        return bagObject.put (VALUE_KEY, value);
     }
 
     private static BagObject serializeJavaObjectType (BagObject bagObject, Object object, Class type) {
@@ -73,11 +102,7 @@ public class Serializer {
                 String name = field.getName ();
                 Class fieldType = field.getType ();
                 log.info ("Add " + name + " as " + fieldType.getName ());
-                if (BagHelper.isPrimitive (fieldType)) {
-                    value.put (name, field.get (object));
-                } else {
-                    value.put (name, toBagObject (field.get (object)));
-                }
+                value.put (name, toBagObject (field.get (object)));
             } catch (IllegalAccessException illegalAccessException) {
                 log.error ("Serializing non-POJO", illegalAccessException);
                 // XXX what do I want to do about this?
@@ -93,7 +118,7 @@ public class Serializer {
         switch (serializationType (type)) {
             case SERIALIZATION_TYPE_PRIMITIVE: return serializeType (bagObject, object, type);
             case SERIALIZATION_TYPE_ARRAY: return serializeArrayType (bagObject, object, type);
-            case SERIALIZATION_TYPE_COLLECTION: break;
+            case SERIALIZATION_TYPE_COLLECTION: return serializeArrayType (bagObject, ((Collection) object).toArray (), type);
             case SERIALIZATION_TYPE_MAP: break;
             case SERIALIZATION_TYPE_BAG_OBJECT: return serializeType (bagObject, object, type);
             case SERIALIZATION_TYPE_BAG_ARRAY: return serializeType (bagObject, object, type);
@@ -205,47 +230,53 @@ public class Serializer {
                 BagObject newBagObject = values.getBagObject (i);
                 populateArray (newTarget, newBagObject, type);
             } else {
-                // we should set the value
-                if (BagHelper.isPrimitive (type)) {
-                    Array.set (target, i, objectify (values.getString (i), type));
-                } else {
-                    Array.set (target, i, fromBagObject (values.getBagObject (i)));
-                }
+                Array.set (target, i, fromBagObject (values.getBagObject (i)));
             }
         }
+    }
+
+    private static Object deserializeType (String value, Class type) throws Exception {
+        Constructor constructor = type.getConstructor (String.class);
+        return constructor.newInstance (value);
+    }
+
+    private static Object deserializeJavaObjectType (BagObject value, Class type) throws Exception {
+        Constructor constructor = type.getConstructor ();
+        Object target = constructor.newInstance ();
+        // traverse the fields via reflection to set the values
+        Field fields[] = type.getFields ();
+        for (Field field : fields) {
+            String name = field.getName ();
+            log.info ("Add " + name + " as " + field.getType ().getName ());
+            field.set (target, fromBagObject (value.getBagObject (name)));
+        }
+        return target;
     }
 
     public static Object fromBagObject (BagObject bagObject) {
         Object target = null;
         try {
-            String classString = bagObject.getString (TYPE_KEY);
+            String typeString = bagObject.getString (TYPE_KEY);
 
             // check to see if this is an array or an object
-            if (classString.charAt (0) == '[') {
+            if (typeString.charAt (0) == '[') {
                 // get the type of the array element to reconstruct
-                Class arrayType = getArrayType (classString);
+                Class arrayType = getArrayType (typeString);
                 int[] arraySizes = getArraySizes (bagObject);
                 target = Array.newInstance (arrayType, arraySizes);
                 populateArray (target, bagObject, arrayType);
             } else {
-                // get the class loader and fetch the class default constructor via reflection
                 ClassLoader classLoader = ClassLoader.getSystemClassLoader ();
-                Class targetClass = classLoader.loadClass (classString);
-                Constructor constructor = targetClass.getConstructor ();
-                target = constructor.newInstance ();
-
-                // traverse the fields via reflection to set the values
-                Field fields[] = targetClass.getFields ();
-                BagObject values = bagObject.getBagObject (VALUE_KEY);
-                for (Field field : fields) {
-                    String name = field.getName ();
-                    Class fieldType = field.getType ();
-                    log.info ("Add " + name + " as " + fieldType.getName ());
-                    if (BagHelper.isPrimitive (fieldType)) {
-                        field.set (target, objectify (values.getString (name), fieldType));
-                    } else {
-                        field.set (target, fromBagObject (values.getBagObject (name)));
-                    }
+                Class type = classLoader.loadClass (typeString);
+                switch (serializationType (type)) {
+                    case SERIALIZATION_TYPE_PRIMITIVE: target = deserializeType (bagObject.getString (VALUE_KEY), type); break;
+                    case SERIALIZATION_TYPE_JAVA_OBJECT: target = deserializeJavaObjectType (bagObject.getBagObject (VALUE_KEY), type); break;
+                    /*
+                    case SERIALIZATION_TYPE_BAG_OBJECT: return serializeType (bagObject, object, type);
+                    case SERIALIZATION_TYPE_BAG_ARRAY: return serializeType (bagObject, object, type);
+                    case SERIALIZATION_TYPE_COLLECTION: return serializeArrayType (bagObject, ((Collection) object).toArray (), type);
+                    case SERIALIZATION_TYPE_MAP: break;
+                    */
                 }
             }
         }

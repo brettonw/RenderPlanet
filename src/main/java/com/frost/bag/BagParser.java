@@ -43,7 +43,7 @@ public class BagParser {
     private boolean ReadElements(BagArray bagArray)
     {
         // <Elements> ::= <Value> | <Value> , <Elements>
-        bagArray.addObject (ReadValue());
+        bagArray.add (ReadValue());
         return (Expect(',') && ReadElements(bagArray)) || true;
     }
 
@@ -62,7 +62,7 @@ public class BagParser {
             Object value = ReadValue();
             if (value != null)
             {
-                bagObject.putObject (key, value);
+                bagObject.put (key, value);
                 return true;
             }
         }

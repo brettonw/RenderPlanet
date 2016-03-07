@@ -42,18 +42,18 @@ public class BagArray {
         ++count;
     }
 
-    public BagArray insertObject (int index, Object object) {
+    public BagArray insert (int index, Object object) {
         grow (index);
         // note that arrays can store null objects, unlike bags
         container[index] = BagHelper.objectify (object);
         return this;
     }
 
-    public BagArray addObject (Object object) {
-        return insertObject (count, object);
+    public BagArray add (Object object) {
+        return insert (count, object);
     }
 
-    public BagArray replaceObject (int index, Object object) {
+    public BagArray replace (int index, Object object) {
         // note that arrays can store null objects, unlike bags
         container[index] = BagHelper.objectify (object);
         return this;
@@ -75,112 +75,32 @@ public class BagArray {
         return (String) container[index];
     }
 
-    public BagArray insert (int index, String value) {
-        return insertObject (index, value);
-    }
-
-    public BagArray add (String value) {
-        return addObject (value);
-    }
-
-    public BagArray replace (int index, String value) {
-        return replaceObject (index, value);
-    }
-
     public Boolean getBoolean (int index) {
         return Boolean.parseBoolean (getString (index));
-    }
-
-    public BagArray insert (int index, Boolean value) {
-        return insertObject (index, value);
-    }
-
-    public BagArray add (Boolean value) {
-        return addObject (value);
-    }
-
-    public BagArray replace (int index, Boolean value) {
-        return replaceObject (index, value);
     }
 
     public Long getLong (int index) {
         return Long.parseLong (getString (index));
     }
 
-    public BagArray insert (int index, Long value) {
-        return insertObject (index, value);
-    }
-
-    public BagArray add (Long value) {
-        return addObject (value);
-    }
-
-    public BagArray replace (int index, Long value) {
-        return replaceObject (index, value);
-    }
-
     public Integer getInteger (int index) {
         return Integer.parseInt (getString (index));
-    }
-
-    public BagArray insert (int index, Integer value) {
-        return insertObject (index, value);
-    }
-
-    public BagArray add (Integer value) {
-        return addObject (value);
-    }
-
-    public BagArray replace (int index, Integer value) {
-        return replaceObject (index, value);
     }
 
     public Double getDouble (int index) {
         return Double.parseDouble (getString (index));
     }
 
-    public BagArray insert (int index, Double value) {
-        return insertObject (index, value);
-    }
-
-    public BagArray add (Double value) {
-        return addObject (value);
-    }
-
-    public BagArray replace (int index, Double value) {
-        return replaceObject (index, value);
+    public Float getFloat (int index) {
+        return Float.parseFloat (getString (index));
     }
 
     public BagObject getBagObject (int index) {
         return (BagObject) container[index];
     }
 
-    public BagArray insert (int index, BagObject value) {
-        return insertObject (index, value);
-    }
-
-    public BagArray add (BagObject value) {
-        return addObject (value);
-    }
-
-    public BagArray replace (int index, BagObject value) {
-        return replaceObject (index, value);
-    }
-
     public BagArray getBagArray (int index) {
         return (BagArray) container[index];
-    }
-
-    public BagArray insert (int index, BagArray value) {
-        return insertObject (index, value);
-    }
-
-    public BagArray add (BagArray value) {
-        return addObject (value);
-    }
-
-    public BagArray replace (int index, BagArray value) {
-        return replaceObject (index, value);
     }
 
     @Override
