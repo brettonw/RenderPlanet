@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -50,6 +51,17 @@ public class SerializerTest {
         log.info (bagObject.toString ());
         ArrayList<Integer> reconArrayList = (ArrayList<Integer>) Serializer.fromBagObject (bagObject);
         assertArrayEquals ("Check array list reconstitution", arrayList.toArray (), reconArrayList.toArray ());
+
+        HashMap<String, Integer> hashMap = new HashMap<> (3);
+        hashMap.put ("A", 1);
+        hashMap.put ("B", 3);
+        hashMap.put ("C", 5);
+        bagObject = Serializer.toBagObject (hashMap);
+        log.info (bagObject.toString ());
+        HashMap<String, Integer> reconHashMap = (HashMap<String, Integer>) Serializer.fromBagObject (bagObject);
+        assertArrayEquals ("Check hash map reconstitution - keys", hashMap.keySet ().toArray (), reconHashMap.keySet ().toArray ());
+        assertArrayEquals ("Check hash map reconstitution - values", hashMap.values ().toArray (), reconHashMap.values ().toArray ());
+
 
         log.info ("got here");
     }

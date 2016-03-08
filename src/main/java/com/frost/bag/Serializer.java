@@ -65,10 +65,8 @@ public class Serializer {
 
     private static BagObject serializeMapType (BagObject bagObject, Map object) {
         Object[] keys = object.keySet ().toArray ();
-        int count = keys.length;
-        BagArray value = new BagArray (count);
-        for (int i = 0; i < count; ++i) {
-            Object key = keys[i];
+        BagArray value = new BagArray (keys.length);
+        for (Object key : keys) {
             Object item = object.get (key);
             BagObject pair = new BagObject (2)
                     .put (KEY_KEY, toBagObject (key))
@@ -100,12 +98,13 @@ public class Serializer {
         return null;
     }
 
-    private static Object deserializeType (BagObject bagObject) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    @SuppressWarnings (value="unchecked")
+    private static Object deserializePrimitiveType (BagObject bagObject) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
         Class type = ClassLoader.getSystemClassLoader ().loadClass (bagObject.getString (TYPE_KEY));
         return type.getConstructor (String.class).newInstance (bagObject.getString (VALUE_KEY));
     }
 
-    private static Object deserializeJavaObjectType (BagObject bagObject) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    private static Object deserializeJavaObjectType (BagObject bagObject) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         Class type = ClassLoader.getSystemClassLoader ().loadClass (bagObject.getString (TYPE_KEY));
         Object target = type.newInstance ();
 
@@ -118,12 +117,25 @@ public class Serializer {
         return target;
     }
 
-    private static Object deserializeCollectionType (BagObject bagObject) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    @SuppressWarnings (value="unchecked")
+    private static Object deserializeCollectionType (BagObject bagObject) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         Class type = ClassLoader.getSystemClassLoader ().loadClass (bagObject.getString (TYPE_KEY));
         Collection target = (Collection) type.newInstance ();
         BagArray value = bagObject.getBagArray (VALUE_KEY);
         for (int i = 0, end = value.getCount (); i < end; ++i) {
             target.add (fromBagObject (value.getBagObject (i)));
+        }
+        return target;
+    }
+
+    @SuppressWarnings (value="unchecked")
+    private static Object deserializeMapType (BagObject bagObject) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        Class type = ClassLoader.getSystemClassLoader ().loadClass (bagObject.getString (TYPE_KEY));
+        Map target = (Map) type.newInstance ();
+        BagArray value = bagObject.getBagArray (VALUE_KEY);
+        for (int i = 0, end = value.getCount (); i < end; ++i) {
+            BagObject entry = value.getBagObject (i);
+            target.put (fromBagObject (entry.getBagObject (KEY_KEY)), fromBagObject (entry.getBagObject (VALUE_KEY)));
         }
         return target;
     }
@@ -204,12 +216,12 @@ public class Serializer {
     public static Object fromBagObject (BagObject bagObject) {
         try {
             switch (serializationType (bagObject.getString (TYPE_KEY))) {
-                case PRIMITIVE: return deserializeType (bagObject);
+                case PRIMITIVE: return deserializePrimitiveType (bagObject);
                 case BAG_OBJECT: return bagObject.getBagObject (VALUE_KEY);
                 case BAG_ARRAY: return bagObject.getBagArray (VALUE_KEY);
                 case JAVA_OBJECT: return deserializeJavaObjectType (bagObject);
                 case COLLECTION: return deserializeCollectionType (bagObject);
-                case MAP: break;
+                case MAP: return deserializeMapType (bagObject);
                 case ARRAY: return deserializeArrayType (bagObject);
             }
         }
