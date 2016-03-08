@@ -48,6 +48,8 @@ public class SerializerTest {
         arrayList.add (5);
         bagObject = Serializer.toBagObject (arrayList);
         log.info (bagObject.toString ());
+        ArrayList<Integer> reconArrayList = (ArrayList<Integer>) Serializer.fromBagObject (bagObject);
+        assertArrayEquals ("Check array list reconstitution", arrayList.toArray (), reconArrayList.toArray ());
 
         log.info ("got here");
     }
